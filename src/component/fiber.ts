@@ -237,7 +237,15 @@ export class Fiber {
         component.__patch(target!, fiber.vnode!);
       } else {
         if (fiber.shouldPatch) {
+          const _elm = component.__owl__.vnode!.elm;
           component.__patch(component.__owl__.vnode!, fiber.vnode!);
+          // When updating a Component's props (in directive),
+          // the component has a pvnode AND should be patched.
+          // However, its pvnode.elm may have changed if it is "virtual"
+          // i.e. coming from the child.
+          if (component.__owl__.pvnode && _elm !== component.__owl__.vnode!.elm) {
+            component.__owl__.pvnode.elm = component.__owl__.vnode!.elm;
+          }
         } else {
           component.__patch(document.createElement(fiber.vnode!.sel!), fiber.vnode!);
           component.__owl__.pvnode!.elm = component.__owl__.vnode!.elm;
